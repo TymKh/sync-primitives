@@ -19,6 +19,8 @@ type Manager[T any] struct {
 	currentlyExecuted map[string][]chan<- result[T]
 }
 
+// NewCustomManager creates a new Manager with a custom cache implementation controlled by client code
+// it should be used for non-trivial flows or non-default cache implementations
 func NewCustomManager[T any](h Handler[T]) *Manager[T] {
 	cm := &Manager[T]{
 		handler:           h,
@@ -29,6 +31,8 @@ func NewCustomManager[T any](h Handler[T]) *Manager[T] {
 	return cm
 }
 
+// NewManager creates a new Manager with a default cache implementation
+// it is preferred way of creating a new Manager
 func NewManager[T any](fetch func(ctx context.Context, k string) (T, error), cacheTime time.Duration) *Manager[T] {
 	g := gocache.New(cacheTime, defaultCleanupInterval)
 	return NewCustomManager[T](Handler[T]{
